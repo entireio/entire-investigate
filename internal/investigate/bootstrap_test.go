@@ -11,7 +11,7 @@ import (
 func TestBootstrap_SeedDocEmbedsQuestionBody(t *testing.T) {
 	t.Parallel()
 
-	dir := t.TempDir()
+	dir := tempRepoDir(t)
 	seedPath := filepath.Join(dir, "seed.md")
 	seed := "Q: why is X broken?\n"
 	if err := os.WriteFile(seedPath, []byte(seed), 0o600); err != nil {
@@ -54,7 +54,7 @@ func TestBootstrap_SeedDocEmbedsQuestionBody(t *testing.T) {
 func TestBootstrap_SeedDocDerivesTopicFromInvestigationHeading(t *testing.T) {
 	t.Parallel()
 
-	dir := t.TempDir()
+	dir := tempRepoDir(t)
 	seedPath := filepath.Join(dir, "seed.md")
 	seed := "# Investigation: Why does checkout retry forever?\n\nbody text\n"
 	if err := os.WriteFile(seedPath, []byte(seed), 0o600); err != nil {

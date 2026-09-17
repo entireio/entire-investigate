@@ -31,7 +31,7 @@ func writeConfig(t *testing.T, repo string) {
 // dropped — and the run path must say so, because a preamble that silently
 // stops applying is indistinguishable from one nobody wrote.
 func TestConfigLoad_TrackedFileDropsAlwaysPrompt(t *testing.T) {
-	tmp := t.TempDir()
+	tmp := tempRepoDir(t)
 	testutil.InitRepo(t, tmp)
 	writeConfig(t, tmp)
 	testutil.GitAdd(t, tmp, filepath.Join(".entire", config.FileName))
@@ -56,7 +56,7 @@ func TestConfigLoad_TrackedFileDropsAlwaysPrompt(t *testing.T) {
 // The ordinary case: an untracked config file is this developer's own, so
 // always_prompt applies and nothing is reported.
 func TestConfigLoad_UntrackedFileKeepsAlwaysPrompt(t *testing.T) {
-	tmp := t.TempDir()
+	tmp := tempRepoDir(t)
 	testutil.InitRepo(t, tmp)
 	writeConfig(t, tmp)
 	t.Chdir(tmp)

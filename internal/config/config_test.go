@@ -17,7 +17,7 @@ import (
 // Do not add t.Parallel() to them.
 
 func TestLoad_MissingFileIsNotAnError(t *testing.T) {
-	tmp := t.TempDir()
+	tmp := tempRepoDir(t)
 	testutil.InitRepo(t, tmp)
 	t.Chdir(tmp)
 
@@ -28,7 +28,7 @@ func TestLoad_MissingFileIsNotAnError(t *testing.T) {
 }
 
 func TestSaveThenLoad_RoundTrips(t *testing.T) {
-	tmp := t.TempDir()
+	tmp := tempRepoDir(t)
 	testutil.InitRepo(t, tmp)
 	t.Chdir(tmp)
 
@@ -49,7 +49,7 @@ func TestSaveThenLoad_RoundTrips(t *testing.T) {
 // Save must create .entire/ rather than failing on a repo that has never run
 // `entire enable`.
 func TestSave_CreatesEntireDir(t *testing.T) {
-	tmp := t.TempDir()
+	tmp := tempRepoDir(t)
 	testutil.InitRepo(t, tmp)
 	t.Chdir(tmp)
 
@@ -61,7 +61,7 @@ func TestSave_CreatesEntireDir(t *testing.T) {
 // the plugin that has ever shipped, and rejecting a key an older one does not
 // understand would break it permanently for that user.
 func TestLoad_IgnoresUnknownKeys(t *testing.T) {
-	tmp := t.TempDir()
+	tmp := tempRepoDir(t)
 	testutil.InitRepo(t, tmp)
 	t.Chdir(tmp)
 
@@ -75,7 +75,7 @@ func TestLoad_IgnoresUnknownKeys(t *testing.T) {
 }
 
 func TestLoad_MalformedFileErrors(t *testing.T) {
-	tmp := t.TempDir()
+	tmp := tempRepoDir(t)
 	testutil.InitRepo(t, tmp)
 	t.Chdir(tmp)
 
@@ -91,7 +91,7 @@ func TestLoad_MalformedFileErrors(t *testing.T) {
 // disabled, so a config file that is in the index arrived by cloning and must
 // not supply it. The inert fields are unaffected.
 func TestVerifyUntracked_TrackedFileIsRejected(t *testing.T) {
-	tmp := t.TempDir()
+	tmp := tempRepoDir(t)
 	testutil.InitRepo(t, tmp)
 	t.Chdir(tmp)
 
@@ -111,7 +111,7 @@ func TestVerifyUntracked_TrackedFileIsRejected(t *testing.T) {
 }
 
 func TestVerifyUntracked_UntrackedFileIsAccepted(t *testing.T) {
-	tmp := t.TempDir()
+	tmp := tempRepoDir(t)
 	testutil.InitRepo(t, tmp)
 	t.Chdir(tmp)
 
@@ -125,7 +125,7 @@ func TestVerifyUntracked_UntrackedFileIsAccepted(t *testing.T) {
 // than a user losing a preference. (Load never reaches this state: it resolves
 // the same root first and reports the failure itself.)
 func TestVerifyUntracked_UnverifiableFailsClosed(t *testing.T) {
-	tmp := t.TempDir()
+	tmp := tempRepoDir(t)
 	t.Chdir(tmp)
 
 	require.NotEmpty(t, config.VerifyUntracked(context.Background()))

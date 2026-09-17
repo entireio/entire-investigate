@@ -45,7 +45,7 @@ func writeShowManifest(
 func TestRunShow_NoManifestsPrintsEmpty(t *testing.T) {
 	t.Parallel()
 
-	store := NewLocalManifestStoreWithDir(t.TempDir())
+	store := NewLocalManifestStoreWithDir(tempRepoDir(t))
 
 	var out bytes.Buffer
 	err := RunShow(context.Background(), ShowInput{Out: &out}, ShowDeps{ManifestStore: store})
@@ -60,7 +60,7 @@ func TestRunShow_NoManifestsPrintsEmpty(t *testing.T) {
 func TestRunShow_SingleManifestDefaults(t *testing.T) {
 	t.Parallel()
 
-	store := NewLocalManifestStoreWithDir(t.TempDir())
+	store := NewLocalManifestStoreWithDir(tempRepoDir(t))
 	t1 := time.Date(2026, 5, 10, 9, 0, 0, 0, time.UTC)
 	writeShowManifest(t, store, "abcdef012345", "only topic", t1, "quorum", "",
 		"## Findings\n\nThe answer is 42.\n",
@@ -93,7 +93,7 @@ func TestRunShow_SingleManifestDefaults(t *testing.T) {
 func TestRunShow_MultipleManifestsRequiresID(t *testing.T) {
 	t.Parallel()
 
-	store := NewLocalManifestStoreWithDir(t.TempDir())
+	store := NewLocalManifestStoreWithDir(tempRepoDir(t))
 	t1 := time.Date(2026, 5, 1, 10, 0, 0, 0, time.UTC)
 	t2 := time.Date(2026, 5, 5, 10, 0, 0, 0, time.UTC)
 	writeShowManifest(t, store, "aaaaaaaaaaaa", "first topic", t1, "quorum", "", "first body\n", nil)
@@ -115,7 +115,7 @@ func TestRunShow_MultipleManifestsRequiresID(t *testing.T) {
 func TestRunShow_ExactRunIDMatch(t *testing.T) {
 	t.Parallel()
 
-	store := NewLocalManifestStoreWithDir(t.TempDir())
+	store := NewLocalManifestStoreWithDir(tempRepoDir(t))
 	t1 := time.Date(2026, 5, 1, 10, 0, 0, 0, time.UTC)
 	t2 := time.Date(2026, 5, 5, 10, 0, 0, 0, time.UTC)
 	writeShowManifest(t, store, "aaaaaaaaaaaa", "first topic", t1, "quorum", "", "first body\n", nil)
@@ -144,7 +144,7 @@ func TestRunShow_ExactRunIDMatch(t *testing.T) {
 func TestRunShow_PrefixMatchUnique(t *testing.T) {
 	t.Parallel()
 
-	store := NewLocalManifestStoreWithDir(t.TempDir())
+	store := NewLocalManifestStoreWithDir(tempRepoDir(t))
 	t1 := time.Date(2026, 5, 1, 10, 0, 0, 0, time.UTC)
 	t2 := time.Date(2026, 5, 5, 10, 0, 0, 0, time.UTC)
 	writeShowManifest(t, store, "aabbccddeeff", "alpha", t1, "quorum", "", "alpha body\n", nil)
@@ -169,7 +169,7 @@ func TestRunShow_PrefixMatchUnique(t *testing.T) {
 func TestRunShow_PrefixMatchAmbiguous(t *testing.T) {
 	t.Parallel()
 
-	store := NewLocalManifestStoreWithDir(t.TempDir())
+	store := NewLocalManifestStoreWithDir(tempRepoDir(t))
 	t1 := time.Date(2026, 5, 1, 10, 0, 0, 0, time.UTC)
 	t2 := time.Date(2026, 5, 5, 10, 0, 0, 0, time.UTC)
 	writeShowManifest(t, store, "aabbccddeeff", "alpha", t1, "quorum", "", "alpha body\n", nil)
@@ -194,7 +194,7 @@ func TestRunShow_PrefixMatchAmbiguous(t *testing.T) {
 func TestRunShow_NoSuchRunID(t *testing.T) {
 	t.Parallel()
 
-	store := NewLocalManifestStoreWithDir(t.TempDir())
+	store := NewLocalManifestStoreWithDir(tempRepoDir(t))
 	t1 := time.Date(2026, 5, 1, 10, 0, 0, 0, time.UTC)
 	writeShowManifest(t, store, "aabbccddeeff", "alpha", t1, "quorum", "", "alpha body\n", nil)
 
@@ -214,7 +214,7 @@ func TestRunShow_NoSuchRunID(t *testing.T) {
 func TestRunShow_PrintsFindingsContentWhenEmbedded(t *testing.T) {
 	t.Parallel()
 
-	store := NewLocalManifestStoreWithDir(t.TempDir())
+	store := NewLocalManifestStoreWithDir(tempRepoDir(t))
 	t1 := time.Date(2026, 5, 1, 10, 0, 0, 0, time.UTC)
 	body := "## Hypothesis\n\nThe build is slow because of npm.\n"
 	// FindingsDoc points at a non-existent path on purpose — embedded content must win.
@@ -234,7 +234,7 @@ func TestRunShow_PrintsFindingsContentWhenEmbedded(t *testing.T) {
 func TestRunShow_FallsBackToPerRunFindingsOnDisk(t *testing.T) {
 	t.Parallel()
 
-	dir := t.TempDir()
+	dir := tempRepoDir(t)
 	store := NewLocalManifestStoreWithDir(dir)
 	stateStore := NewStateStoreWithDir(dir)
 
@@ -266,11 +266,11 @@ func TestRunShow_FallsBackToPerRunFindingsOnDisk(t *testing.T) {
 func TestRunShow_IgnoresFindingsDocPointingOutsideTheStore(t *testing.T) {
 	t.Parallel()
 
-	dir := t.TempDir()
+	dir := tempRepoDir(t)
 	store := NewLocalManifestStoreWithDir(dir)
 	stateStore := NewStateStoreWithDir(dir)
 
-	elsewhere := filepath.Join(t.TempDir(), "planted.md")
+	elsewhere := filepath.Join(tempRepoDir(t), "planted.md")
 	if err := os.WriteFile(elsewhere, []byte("SECRET FROM ELSEWHERE\n"), 0o600); err != nil {
 		t.Fatalf("write planted file: %v", err)
 	}
@@ -296,7 +296,7 @@ func TestRunShow_IgnoresFindingsDocPointingOutsideTheStore(t *testing.T) {
 func TestRunShow_NoContentAvailable(t *testing.T) {
 	t.Parallel()
 
-	store := NewLocalManifestStoreWithDir(t.TempDir())
+	store := NewLocalManifestStoreWithDir(tempRepoDir(t))
 	t1 := time.Date(2026, 5, 1, 10, 0, 0, 0, time.UTC)
 	// Both empty content and missing on-disk doc — soft notice should fire.
 	writeShowManifest(t, store, "abcdef012345", "lost run", t1, "cancelled",

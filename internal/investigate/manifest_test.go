@@ -29,7 +29,7 @@ func newManifest(runID, topic string, started time.Time, outcome string) LocalMa
 func TestLocalManifestStore_RoundTrip(t *testing.T) {
 	t.Parallel()
 
-	dir := t.TempDir()
+	dir := tempRepoDir(t)
 	store := NewLocalManifestStoreWithDir(dir)
 
 	now := time.Date(2026, 5, 8, 12, 30, 0, 0, time.UTC)
@@ -69,7 +69,7 @@ func TestLocalManifestStore_RoundTrip(t *testing.T) {
 func TestLocalManifestStore_ListSortedNewestFirst(t *testing.T) {
 	t.Parallel()
 
-	dir := t.TempDir()
+	dir := tempRepoDir(t)
 	store := NewLocalManifestStoreWithDir(dir)
 
 	t1 := time.Date(2026, 5, 1, 10, 0, 0, 0, time.UTC)
@@ -106,7 +106,7 @@ func TestLocalManifestStore_ListSortedNewestFirst(t *testing.T) {
 func TestLocalManifestStore_FindByRunID(t *testing.T) {
 	t.Parallel()
 
-	dir := t.TempDir()
+	dir := tempRepoDir(t)
 	store := NewLocalManifestStoreWithDir(dir)
 
 	now := time.Date(2026, 5, 8, 12, 0, 0, 0, time.UTC)
@@ -163,7 +163,7 @@ func TestLocalManifestStore_FindByRunID(t *testing.T) {
 func TestLocalManifestStore_FindingsContentRoundTrip(t *testing.T) {
 	t.Parallel()
 
-	dir := t.TempDir()
+	dir := tempRepoDir(t)
 	store := NewLocalManifestStoreWithDir(dir)
 
 	now := time.Date(2026, 5, 12, 9, 0, 0, 0, time.UTC)
@@ -195,7 +195,7 @@ func TestLocalManifestStore_FindingsContentRoundTrip(t *testing.T) {
 func TestLocalManifestStore_MissingDirReturnsEmpty(t *testing.T) {
 	t.Parallel()
 
-	dir := filepath.Join(t.TempDir(), "does-not-exist")
+	dir := filepath.Join(tempRepoDir(t), "does-not-exist")
 	store := NewLocalManifestStoreWithDir(dir)
 
 	got, err := store.List(context.Background())
@@ -215,7 +215,7 @@ func TestLocalManifestStore_MissingDirReturnsEmpty(t *testing.T) {
 func TestLocalManifestStore_ListSkipsInvalidRunID(t *testing.T) {
 	t.Parallel()
 
-	dir := t.TempDir()
+	dir := tempRepoDir(t)
 	store := NewLocalManifestStoreWithDir(dir)
 
 	good := newManifest("abcdef012345", "legit", time.Date(2026, 5, 8, 12, 0, 0, 0, time.UTC), "quorum")

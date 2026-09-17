@@ -41,7 +41,7 @@ func silentPassthrough(err error) error { return err }
 // into it. Mirrors review's setupCmdTestRepo.
 func setupInvestigateRepo(t *testing.T) string {
 	t.Helper()
-	tmp := t.TempDir()
+	tmp := tempRepoDir(t)
 	testutil.InitRepo(t, tmp)
 	testutil.WriteFile(t, tmp, "f.txt", "x")
 	testutil.GitAdd(t, tmp, "f.txt")
@@ -55,7 +55,7 @@ func setupInvestigateRepo(t *testing.T) string {
 // pass the return value as the positional [seed-doc] arg.
 func seedArg(t *testing.T, topic string) string {
 	t.Helper()
-	dir := t.TempDir()
+	dir := tempRepoDir(t)
 	path := filepath.Join(dir, "seed.md")
 	if err := os.WriteFile(path, []byte("# "+topic+"\n"), 0o600); err != nil {
 		t.Fatalf("write seed file: %v", err)
@@ -162,7 +162,7 @@ func TestNewCommand_FixSubcommand_Help(t *testing.T) {
 }
 
 func TestNewCommand_NotInGitRepoReturnsError(t *testing.T) {
-	t.Chdir(t.TempDir())
+	t.Chdir(tempRepoDir(t))
 
 	deps := newTestDeps(t, nil, nil)
 	cmd := investigate.NewCommand(deps)
@@ -785,7 +785,7 @@ func equalStringSlices(a, b []string) bool {
 }
 
 func TestRunInvestigate_SoftWarnDeclinedReturnsNil(t *testing.T) {
-	tmp := t.TempDir()
+	tmp := tempRepoDir(t)
 	t.Chdir(tmp)
 	testutil.InitRepo(t, tmp)
 
@@ -813,7 +813,7 @@ func TestRunInvestigate_SoftWarnDeclinedReturnsNil(t *testing.T) {
 }
 
 func TestRunFresh_SkipsMultipickerWhenAgentsFlagPresent(t *testing.T) {
-	tmp := t.TempDir()
+	tmp := tempRepoDir(t)
 	t.Chdir(tmp)
 	testutil.InitRepo(t, tmp)
 	testutil.WriteFile(t, tmp, "f.txt", "x")
@@ -848,7 +848,7 @@ func TestRunFresh_SkipsMultipickerWhenAgentsFlagPresent(t *testing.T) {
 }
 
 func TestRunFresh_InvokesMultipickerWhenTwoAgentsAndNoFlag(t *testing.T) {
-	tmp := t.TempDir()
+	tmp := tempRepoDir(t)
 	t.Chdir(tmp)
 	testutil.InitRepo(t, tmp)
 	testutil.WriteFile(t, tmp, "f.txt", "x")
@@ -892,7 +892,7 @@ func TestRunFresh_InvokesMultipickerWhenTwoAgentsAndNoFlag(t *testing.T) {
 }
 
 func TestRunInvestigate_SoftWarnAcceptedRunsLoop(t *testing.T) {
-	tmp := t.TempDir()
+	tmp := tempRepoDir(t)
 	t.Chdir(tmp)
 	testutil.InitRepo(t, tmp)
 	testutil.WriteFile(t, tmp, "f.txt", "x")
@@ -934,7 +934,7 @@ func TestRunInvestigate_SoftWarnAcceptedRunsLoop(t *testing.T) {
 // returns false under `go test`), the soft-warn does NOT block the loop
 // — it proceeds and a single informational log line is emitted.
 func TestRunInvestigate_SoftWarnSilentInNonInteractive(t *testing.T) {
-	tmp := t.TempDir()
+	tmp := tempRepoDir(t)
 	t.Chdir(tmp)
 	testutil.InitRepo(t, tmp)
 	testutil.WriteFile(t, tmp, "f.txt", "x")

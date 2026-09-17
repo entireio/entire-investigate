@@ -11,7 +11,7 @@ import (
 func TestStateStore_SaveLoadRoundTrip(t *testing.T) {
 	t.Parallel()
 
-	dir := t.TempDir()
+	dir := tempRepoDir(t)
 	store := NewStateStoreWithDir(dir)
 	now := time.Now().UTC().Truncate(time.Second)
 	st := &RunState{
@@ -81,7 +81,7 @@ func TestStateStore_SaveLoadRoundTrip(t *testing.T) {
 func TestStateStore_RunDirComposition(t *testing.T) {
 	t.Parallel()
 
-	dir := t.TempDir()
+	dir := tempRepoDir(t)
 	store := NewStateStoreWithDir(dir)
 	const runID = "abcdef012345"
 
@@ -95,7 +95,7 @@ func TestStateStore_RunDirComposition(t *testing.T) {
 func TestStateStore_SaveCreatesPerRunDirectory(t *testing.T) {
 	t.Parallel()
 
-	dir := t.TempDir()
+	dir := tempRepoDir(t)
 	store := NewStateStoreWithDir(dir)
 	st := &RunState{
 		RunID:       "abcdef012345",
@@ -116,7 +116,7 @@ func TestStateStore_SaveCreatesPerRunDirectory(t *testing.T) {
 func TestStateStore_LoadMissingReturnsNilNil(t *testing.T) {
 	t.Parallel()
 
-	dir := t.TempDir()
+	dir := tempRepoDir(t)
 	store := NewStateStoreWithDir(dir)
 	got, err := store.Load(context.Background(), "abcdef012345")
 	if err != nil {
@@ -130,7 +130,7 @@ func TestStateStore_LoadMissingReturnsNilNil(t *testing.T) {
 func TestStateStore_LoadMissingDirectoryReturnsNilNil(t *testing.T) {
 	t.Parallel()
 
-	dir := filepath.Join(t.TempDir(), "does", "not", "exist")
+	dir := filepath.Join(tempRepoDir(t), "does", "not", "exist")
 	store := NewStateStoreWithDir(dir)
 	got, err := store.Load(context.Background(), "abcdef012345")
 	if err != nil {
@@ -178,7 +178,7 @@ func TestValidateRunID(t *testing.T) {
 func TestStateStore_RejectsInvalidRunID(t *testing.T) {
 	t.Parallel()
 
-	dir := t.TempDir()
+	dir := tempRepoDir(t)
 	store := NewStateStoreWithDir(dir)
 	ctx := context.Background()
 	now := time.Now().UTC()
@@ -207,7 +207,7 @@ func TestStateStore_RejectsInvalidRunID(t *testing.T) {
 func TestStateStore_SaveDoesNotLeaveTempFiles(t *testing.T) {
 	t.Parallel()
 
-	dir := t.TempDir()
+	dir := tempRepoDir(t)
 	store := NewStateStoreWithDir(dir)
 	now := time.Now().UTC()
 	st := &RunState{

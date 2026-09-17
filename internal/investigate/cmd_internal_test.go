@@ -25,7 +25,7 @@ import (
 // NOTE: This test uses t.Chdir, which Go forbids combining with
 // t.Parallel(). Do not add t.Parallel() here.
 func TestSaveInvestigateConfig_WritesOwnFile(t *testing.T) {
-	tmp := t.TempDir()
+	tmp := tempRepoDir(t)
 	t.Chdir(tmp)
 	testutil.InitRepo(t, tmp)
 

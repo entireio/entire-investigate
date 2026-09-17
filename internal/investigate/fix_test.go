@@ -55,7 +55,7 @@ func writeFixManifest(t *testing.T, store *LocalManifestStore, runID, topic stri
 func TestRunFix_PicksMostRecent(t *testing.T) {
 	t.Parallel()
 
-	store := NewLocalManifestStoreWithDir(t.TempDir())
+	store := NewLocalManifestStoreWithDir(tempRepoDir(t))
 	t1 := time.Date(2026, 5, 1, 10, 0, 0, 0, time.UTC)
 	t2 := time.Date(2026, 5, 5, 10, 0, 0, 0, time.UTC)
 	writeFixManifest(t, store, "aaaaaaaaaaaa", "older topic", t1, "")
@@ -89,7 +89,7 @@ func TestRunFix_PicksMostRecent(t *testing.T) {
 func TestRunFix_ResolvesByRunID(t *testing.T) {
 	t.Parallel()
 
-	store := NewLocalManifestStoreWithDir(t.TempDir())
+	store := NewLocalManifestStoreWithDir(tempRepoDir(t))
 	t1 := time.Date(2026, 5, 1, 10, 0, 0, 0, time.UTC)
 	t2 := time.Date(2026, 5, 5, 10, 0, 0, 0, time.UTC)
 	writeFixManifest(t, store, "aaaaaaaaaaaa", "older topic", t1, "")
@@ -117,7 +117,7 @@ func TestRunFix_ResolvesByRunID(t *testing.T) {
 func TestRunFix_RunIDNotFound(t *testing.T) {
 	t.Parallel()
 
-	store := NewLocalManifestStoreWithDir(t.TempDir())
+	store := NewLocalManifestStoreWithDir(tempRepoDir(t))
 	writeFixManifest(t, store, "aaaaaaaaaaaa", "topic", time.Date(2026, 5, 1, 10, 0, 0, 0, time.UTC), "")
 
 	var rec fixLaunchRecord
@@ -142,7 +142,7 @@ func TestRunFix_RunIDNotFound(t *testing.T) {
 func TestRunFix_NoManifests(t *testing.T) {
 	t.Parallel()
 
-	store := NewLocalManifestStoreWithDir(t.TempDir())
+	store := NewLocalManifestStoreWithDir(tempRepoDir(t))
 
 	var rec fixLaunchRecord
 	err := RunFix(context.Background(),
@@ -166,10 +166,10 @@ func TestRunFix_NoManifests(t *testing.T) {
 func TestRunFix_ComposesPromptBody(t *testing.T) {
 	t.Parallel()
 
-	dir := t.TempDir()
+	dir := tempRepoDir(t)
 	findings := "## Finding 1\n\nThe checkout button times out after 30s.\n"
 	store := NewLocalManifestStoreWithDir(dir)
-	stateStore := NewStateStoreWithDir(t.TempDir())
+	stateStore := NewStateStoreWithDir(tempRepoDir(t))
 	now := time.Date(2026, 5, 8, 12, 0, 0, 0, time.UTC)
 	const runID = "abcdef012345"
 	// FindingsDoc is display-only now (see manifest.go) — RunFix resolves
@@ -226,14 +226,14 @@ func TestRunFix_IgnoresFindingsDoc_ArbitraryFileRead(t *testing.T) {
 
 	// A file outside anything RunFix should ever touch, containing a
 	// marker that must never reach the launched agent's prompt.
-	decoyDir := t.TempDir()
+	decoyDir := tempRepoDir(t)
 	decoyPath := decoyDir + "/not-a-findings-doc-secret.txt"
 	if err := os.WriteFile(decoyPath, []byte("SHOULD-NOT-BE-READ-INTO-PROMPT"), 0o600); err != nil {
 		t.Fatalf("write decoy file: %v", err)
 	}
 
-	store := NewLocalManifestStoreWithDir(t.TempDir())
-	stateStore := NewStateStoreWithDir(t.TempDir())
+	store := NewLocalManifestStoreWithDir(tempRepoDir(t))
+	stateStore := NewStateStoreWithDir(tempRepoDir(t))
 	now := time.Date(2026, 5, 8, 12, 0, 0, 0, time.UTC)
 	const runID = "abcdef012345"
 	// The manifest names the decoy file as its findings doc. No content is
@@ -267,9 +267,9 @@ func TestRunFix_IgnoresFindingsDoc_ArbitraryFileRead(t *testing.T) {
 func TestRunFix_TolerateMissingDocs(t *testing.T) {
 	t.Parallel()
 
-	dir := t.TempDir()
+	dir := tempRepoDir(t)
 	store := NewLocalManifestStoreWithDir(dir)
-	stateStore := NewStateStoreWithDir(t.TempDir())
+	stateStore := NewStateStoreWithDir(tempRepoDir(t))
 	now := time.Date(2026, 5, 8, 12, 0, 0, 0, time.UTC)
 	// No findings written to the state store for this run.
 	writeFixManifest(t, store, "abcdef012345", "topic", now, "")
@@ -303,7 +303,7 @@ func TestRunFix_TolerateMissingDocs(t *testing.T) {
 func TestRunFix_PrefersFindingsContentOverDoc(t *testing.T) {
 	t.Parallel()
 
-	dir := t.TempDir()
+	dir := tempRepoDir(t)
 	store := NewLocalManifestStoreWithDir(dir)
 	now := time.Date(2026, 5, 15, 12, 0, 0, 0, time.UTC)
 	m := LocalManifest{
@@ -342,7 +342,7 @@ func TestRunFix_PrefersFindingsContentOverDoc(t *testing.T) {
 func TestRunFix_FallsBackToDefaultFixAgent(t *testing.T) {
 	t.Parallel()
 
-	store := NewLocalManifestStoreWithDir(t.TempDir())
+	store := NewLocalManifestStoreWithDir(tempRepoDir(t))
 	now := time.Date(2026, 5, 8, 12, 0, 0, 0, time.UTC)
 	writeFixManifest(t, store, "abcdef012345", "topic", now, "")
 

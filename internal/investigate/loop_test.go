@@ -80,7 +80,7 @@ const noopScript = `exit 0`
 // what the spawned agent is told to edit.
 func makeLoopFiles(t *testing.T, runID string) (findings, storeDir string) {
 	t.Helper()
-	storeDir = t.TempDir()
+	storeDir = tempRepoDir(t)
 	store := NewStateStoreWithDir(storeDir)
 	if err := store.WriteFindings(runID, []byte("# Findings\n")); err != nil {
 		t.Fatalf("write findings: %v", err)
@@ -642,7 +642,7 @@ func TestRunInvestigateLoop_CancelledContext(t *testing.T) {
 
 func TestRunInvestigateLoop_RejectsInvalidInput(t *testing.T) {
 	t.Parallel()
-	store := NewStateStoreWithDir(t.TempDir())
+	store := NewStateStoreWithDir(tempRepoDir(t))
 	deps := LoopDeps{
 		SpawnerFor: func(string) spawn.Spawner { return nil },
 		States:     store,

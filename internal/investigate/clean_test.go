@@ -12,7 +12,7 @@ import (
 )
 
 // cleanTestEnv bundles a manifest store + a per-run dir root rooted at
-// t.TempDir(), plus injectable CleanDeps that point at them. Tests that
+// tempRepoDir(t), plus injectable CleanDeps that point at them. Tests that
 // need a real filesystem layout use this to avoid touching the host repo.
 type cleanTestEnv struct {
 	store      *LocalManifestStore
@@ -21,8 +21,8 @@ type cleanTestEnv struct {
 
 func newCleanTestEnv(t *testing.T) *cleanTestEnv {
 	t.Helper()
-	manifestDir := t.TempDir()
-	runDirRoot := t.TempDir()
+	manifestDir := tempRepoDir(t)
+	runDirRoot := tempRepoDir(t)
 	return &cleanTestEnv{
 		store:      NewLocalManifestStoreWithDir(manifestDir),
 		runDirRoot: runDirRoot,
