@@ -7,22 +7,33 @@ import (
 	"github.com/entireio/cli/cmd/entire/cli/osroot"
 )
 
-// tempRepoDir is t.TempDir plus a release of any process-wide osroot handle on
-// the directory's .entire subdirectory.
+// tempRepoDir is t.TempDir plus a release of every process-wide osroot handle
+// that a test repository rooted there can leave behind.
 //
 // osroot.Shared caches an open *os.Root per directory for the lifetime of the
 // process and deliberately never closes it. On Windows an open directory
 // handle blocks removal, so t.TempDir's own cleanup fails with "The process
 // cannot access the file because it is being used by another process" for
-// every test that caused .entire to be opened. Cleanups run last-in-first-out
-// and TempDir registers its own before this one, so the handle is released
-// first.
+// every test that opened one. Cleanups run last-in-first-out and TempDir
+// registers its own before this one, so the handles are released first.
 //
-// Forget is idempotent for a directory that was never opened, so this is safe
-// for temp dirs that hold no .entire at all.
+// The anchors are enumerated rather than reset wholesale: osroot.ResetShared
+// would close roots that concurrently running parallel tests are still using.
+// Forget is documented as idempotent for a directory that was never opened, so
+// naming a candidate that this test never created costs nothing.
 func tempRepoDir(t *testing.T) string {
 	t.Helper()
 	dir := t.TempDir()
-	t.Cleanup(func() { osroot.Forget(filepath.Join(dir, ".entire")) })
+	t.Cleanup(func() {
+		for _, p := range []string{
+			filepath.Join(dir, ".git", "entire-investigations", "manifests"),
+			filepath.Join(dir, ".git", "entire-investigations"),
+			filepath.Join(dir, ".entire"),
+			filepath.Join(dir, ".git"),
+			dir,
+		} {
+			osroot.Forget(p)
+		}
+	})
 	return dir
 }

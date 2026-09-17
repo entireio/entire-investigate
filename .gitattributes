@@ -1,0 +1,7 @@
+# Checkouts use LF on every platform.
+#
+# The prompt golden files under internal/investigate/testdata are compared
+# byte-for-byte against text the code builds with "\n". A Windows checkout's
+# default CRLF conversion rewrites them on disk and every golden test fails
+# with a diff that looks identical when printed.
+* text=auto eol=lf
