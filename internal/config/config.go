@@ -25,12 +25,18 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/entireio/cli/cmd/entire/cli/gitrepo"
 	"github.com/entireio/cli/cmd/entire/cli/jsonutil"
 	"github.com/entireio/cli/cmd/entire/cli/osroot"
 	"github.com/entireio/cli/cmd/entire/cli/paths"
 )
+
+// entireDirName is the directory the config lives in, relative to the worktree
+// root. It is opened as a name inside a root anchored on the worktree, never
+// joined and opened directly — see entireDir.
+const entireDirName = ".entire"
 
 // FileName is the config file's name inside .entire/.
 const FileName = "investigate.local.json"
@@ -87,7 +93,7 @@ type Result struct {
 // key an older plugin does not understand would break it permanently for that
 // user with no way for us to fix it for them.
 func Load(ctx context.Context) (*Result, error) {
-	dir, err := entireDir(ctx)
+	dir, err := entireDir(ctx, false)
 	if errors.Is(err, fs.ErrNotExist) {
 		// No .entire/ at all — the same "not configured yet" state as a
 		// missing file, not a fault. A repo that has never run `entire
@@ -124,14 +130,7 @@ func Load(ctx context.Context) (*Result, error) {
 // does not exist. The write is atomic and replaces a leaf symlink rather than
 // following it.
 func Save(ctx context.Context, cfg *Config) error {
-	root, err := paths.WorktreeRoot(ctx)
-	if err != nil {
-		return fmt.Errorf("locate worktree root: %w", err)
-	}
-	if err := os.MkdirAll(filepath.Join(root, ".entire"), 0o750); err != nil {
-		return fmt.Errorf("create .entire: %w", err)
-	}
-	dir, err := entireDir(ctx)
+	dir, err := entireDir(ctx, true)
 	if err != nil {
 		return err
 	}
@@ -142,6 +141,54 @@ func Save(ctx context.Context, cfg *Config) error {
 	if err := jsonutil.WriteFileAtomicIn(dir, FileName, data, 0o600); err != nil {
 		return fmt.Errorf("write %s: %w", RepoRelPath, err)
 	}
+	return ensureGitignored(dir)
+}
+
+// ensureGitignored adds FileName to .entire/.gitignore when it is not already
+// listed.
+//
+// The plugin does this for itself rather than asking the CLI to carry the name
+// in strategy.EnsureEntireGitignore, which is the list that covers
+// settings.local.json. Putting a plugin's filename in the CLI's list would
+// re-create exactly the coupling this extraction removed — the CLI would need
+// to know every plugin's files — and the CLI has no reason to learn this one.
+//
+// It is not cosmetic. AlwaysPrompt is honored on the strength of the file being
+// untracked, so a stray `git add -A` silently downgrades the user's
+// configuration: the prompt stops applying and the only clue is a notice they
+// have to be looking for. Ignoring the file keeps the common accident from
+// reaching that state at all.
+//
+// Entries are appended, never rewritten, so the CLI's own lines survive; a
+// failure here is reported but does not undo the config write, which succeeded.
+func ensureGitignored(dir *os.Root) error {
+	const name = ".gitignore"
+
+	var content string
+	switch data, err := osroot.ReadFileNoFollow(dir, name); {
+	case err == nil:
+		content = string(data)
+	case errors.Is(err, fs.ErrNotExist):
+		// No file yet: the CLI writes one on `entire enable`, and appending
+		// creates it here if the plugin gets there first. Both are additive.
+	default:
+		return fmt.Errorf("read %s/%s: %w", entireDirName, name, err)
+	}
+
+	for line := range strings.SplitSeq(content, "\n") {
+		if strings.TrimSpace(line) == FileName {
+			return nil
+		}
+	}
+
+	if content != "" && !strings.HasSuffix(content, "\n") {
+		content += "\n"
+	}
+	content += FileName + "\n"
+
+	if err := jsonutil.WriteFileAtomicIn(dir, name, []byte(content), 0o644); err != nil {
+		return fmt.Errorf("update %s/%s: %w", entireDirName, name, err)
+	}
 	return nil
 }
 
@@ -151,7 +198,7 @@ func Path(ctx context.Context) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("locate worktree root: %w", err)
 	}
-	return filepath.Join(root, ".entire", FileName), nil
+	return filepath.Join(root, entireDirName, FileName), nil
 }
 
 // VerifyUntracked returns "" when the config file is genuinely this
@@ -198,22 +245,46 @@ func VerifyUntracked(ctx context.Context) string {
 	return ""
 }
 
-// entireDir returns the shared root anchored at <worktree>/.entire. The root is
-// owned by osroot's process-wide registry and must not be closed.
-func entireDir(ctx context.Context) (*os.Root, error) {
-	root, err := paths.WorktreeRoot(ctx)
+// entireDir returns the shared root over <worktree>/.entire, creating the
+// directory when create is set. The root is owned by osroot's process-wide
+// registry and must not be closed.
+//
+// The root is anchored on the *worktree root* and .entire is opened as a name
+// inside it, rather than resolving <worktree>/.entire and opening that. The
+// difference is the whole protection: os.OpenRoot on a joined path resolves
+// every component first, so a repository-controlled `.entire` symlink is
+// followed before confinement begins, and the config would be read from — and
+// written to — wherever it points.
+//
+// That is not a theoretical hole here. AlwaysPrompt is honored from this file
+// on the strength of VerifyUntracked, which asks whether
+// .entire/investigate.local.json is in the git index. A committed `.entire`
+// symlink pointing at another committed directory puts the real file at a
+// path the index records under a *different* name, so the check passes and a
+// version-controlled instruction reaches an approvals-disabled agent —
+// precisely what the gate exists to stop.
+//
+// MkdirAllNoSymlink and SharedChild are the CLI's own pattern for this
+// directory (see entiredir.openDir); both refuse a symlinked component.
+func entireDir(ctx context.Context, create bool) (*os.Root, error) {
+	worktreeRoot, err := paths.WorktreeRoot(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("locate worktree root: %w", err)
 	}
-	dir, err := osroot.Shared(filepath.Join(root, ".entire"))
+	parent, err := osroot.Shared(worktreeRoot)
 	if err != nil {
-		// osroot.Shared returns a missing directory unwrapped so callers can
-		// classify it; preserve that for Load's errors.Is check.
-		if errors.Is(err, fs.ErrNotExist) {
-			//nolint:wrapcheck // Load classifies this with errors.Is; wrapping is safe for errors.Is but the bare sentinel keeps the contract obvious at both ends.
-			return nil, err
+		//nolint:wrapcheck // Shared names the directory and returns a missing one unwrapped for errors.Is
+		return nil, err
+	}
+	if create {
+		if err := osroot.MkdirAllNoSymlink(parent, entireDirName, 0o750); err != nil {
+			return nil, fmt.Errorf("create %s: %w", entireDirName, err)
 		}
-		return nil, fmt.Errorf("open .entire: %w", err)
+	}
+	dir, err := osroot.SharedChild(parent, filepath.Join(worktreeRoot, entireDirName), entireDirName)
+	if err != nil {
+		//nolint:wrapcheck // preserves the missing-path classification Load relies on
+		return nil, err
 	}
 	return dir, nil
 }

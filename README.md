@@ -60,7 +60,12 @@ There is no committed counterpart, and that is a security property rather than a
 
 `always_prompt` is free text that lands verbatim in the prompt of an agent this plugin spawns with approval checks disabled (`bypassPermissions` for claude-code, `--dangerously-bypass-approvals-and-sandbox` for codex). If it could be read from a version-controlled file, an ordinary pull request would steer a permission-bypassed agent on every developer who pulled it. With no committed file in the lookup order there is nothing to gate.
 
-The one case that survives is someone committing `.entire/investigate.local.json` anyway, so the plugin checks the git index on load: a tracked config file still supplies `agents`, `max_turns` and `quorum`, but `always_prompt` is dropped and the reason is reported. `.entire/.gitignore` covers the file in repos Entire set up.
+Two things back that up rather than leaving it to convention:
+
+- **The file is ignored on first write.** `Save` adds `investigate.local.json` to `.entire/.gitignore`, appending so the CLI's own entries survive. A stray `git add -A` would otherwise track it and silently downgrade the config.
+- **A tracked file loses the prompt.** If it is committed anyway, the plugin's index check drops `always_prompt` and reports why; `agents`, `max_turns` and `quorum` still apply.
+
+`.entire` itself is opened as a name inside a root anchored on the worktree root, never by resolving the joined path, so a repository-controlled `.entire` symlink is refused instead of followed. Without that, a committed symlink would put the real config somewhere the index records under a different name — the untracked check would pass and version-controlled text would reach an approvals-disabled agent.
 
 This mirrors the CLI's own treatment of `.entire/settings.local.json`; see `internal/config` for the reasoning in full.
 
