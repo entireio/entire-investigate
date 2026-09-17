@@ -1,0 +1,7 @@
+# Build output
+/entire-investigate
+/dist/
+/coverage.out
+
+# Local agent settings
+.claude/settings.local.json

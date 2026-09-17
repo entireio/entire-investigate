@@ -1,0 +1,122 @@
+module github.com/entireio/entire-investigate
+
+go 1.27.1
+
+require (
+	charm.land/bubbles/v2 v2.2.1
+	charm.land/bubbletea/v2 v2.0.9
+	charm.land/huh/v2 v2.0.3
+	charm.land/lipgloss/v2 v2.0.6
+	github.com/charmbracelet/x/ansi v0.11.8
+	github.com/entireio/cli v0.10.7-nightly.202609170627.0dda4e14f
+	github.com/mattn/go-runewidth v0.0.29
+	github.com/spf13/cobra v1.10.2
+	github.com/stretchr/testify v1.12.1
+)
+
+require (
+	charm.land/glamour/v2 v2.0.1 // indirect
+	dario.cat/mergo v1.0.2 // indirect
+	github.com/Masterminds/semver/v3 v3.4.0 // indirect
+	github.com/Microsoft/go-winio v0.6.2 // indirect
+	github.com/ProtonMail/go-crypto v1.4.1 // indirect
+	github.com/STARRY-S/zip v0.2.3 // indirect
+	github.com/alecthomas/chroma/v2 v2.14.0 // indirect
+	github.com/andybalholm/brotli v1.2.2 // indirect
+	github.com/atotto/clipboard v0.1.4 // indirect
+	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
+	github.com/aymerick/douceur v0.2.0 // indirect
+	github.com/betterleaks/betterleaks v1.8.1 // indirect
+	github.com/bodgit/plumbing v1.3.0 // indirect
+	github.com/bodgit/sevenzip v1.6.2 // indirect
+	github.com/bodgit/windows v1.0.1 // indirect
+	github.com/catppuccin/go v0.3.0 // indirect
+	github.com/charlievieth/fastwalk v1.0.14 // indirect
+	github.com/charmbracelet/colorprofile v0.4.3 // indirect
+	github.com/charmbracelet/ultraviolet v0.0.0-20260906173415-0277a179edd9 // indirect
+	github.com/charmbracelet/x/exp/ordered v0.1.0 // indirect
+	github.com/charmbracelet/x/exp/slice v0.0.0-20250327172914-2fdc97757edf // indirect
+	github.com/charmbracelet/x/exp/strings v0.0.0-20240722160745-212f7b056ed0 // indirect
+	github.com/charmbracelet/x/term v0.2.2 // indirect
+	github.com/charmbracelet/x/termios v0.1.1 // indirect
+	github.com/charmbracelet/x/windows v0.2.2 // indirect
+	github.com/clipperhouse/displaywidth v0.11.0 // indirect
+	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
+	github.com/cloudflare/circl v1.6.3 // indirect
+	github.com/denisbrodbeck/machineid v1.0.1 // indirect
+	github.com/dlclark/regexp2 v1.12.0 // indirect
+	github.com/dsnet/compress v0.0.2-0.20230904184137-39efe44ab707 // indirect
+	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/emirpasic/gods v1.18.1 // indirect
+	github.com/expr-lang/expr v1.17.8 // indirect
+	github.com/fatih/semgroup v1.2.0 // indirect
+	github.com/gitleaks/go-gitdiff v0.9.1 // indirect
+	github.com/go-git/gcfg/v2 v2.0.2 // indirect
+	github.com/go-git/go-billy/v6 v6.0.0-alpha.2 // indirect
+	github.com/go-git/go-git/v6 v6.0.0-alpha.5.0.20260812155443-34770e01d7c2 // indirect
+	github.com/go-git/x/plugin/objectsigner/auto v0.1.1-0.20260624122410-382b2905c041 // indirect
+	github.com/go-git/x/plugin/objectsigner/gpg v0.2.1-0.20260624122410-382b2905c041 // indirect
+	github.com/go-git/x/plugin/objectsigner/program v0.0.0-20260624122410-382b2905c041 // indirect
+	github.com/go-git/x/plugin/objectsigner/ssh v0.2.1-0.20260624122410-382b2905c041 // indirect
+	github.com/go-sprout/sprout v1.0.3 // indirect
+	github.com/goccy/go-json v0.10.6 // indirect
+	github.com/google/go-github/v72 v72.0.0 // indirect
+	github.com/google/go-querystring v1.1.0 // indirect
+	github.com/google/uuid v1.6.0 // indirect
+	github.com/gorilla/css v1.0.1 // indirect
+	github.com/h2non/filetype v1.1.3 // indirect
+	github.com/hashicorp/go-version v1.7.0 // indirect
+	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
+	github.com/hiddeco/sshsig v0.2.0 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
+	github.com/kevinburke/ssh_config v1.6.0 // indirect
+	github.com/klauspost/compress v1.19.2 // indirect
+	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
+	github.com/klauspost/pgzip v1.2.6 // indirect
+	github.com/lastpersonlabs/goredact v0.1.0 // indirect
+	github.com/lucasb-eyer/go-colorful v1.4.1 // indirect
+	github.com/mattn/go-colorable v0.1.14 // indirect
+	github.com/mattn/go-isatty v0.0.24 // indirect
+	github.com/mholt/archives v0.1.6-0.20260429171216-ef71b7a32fae // indirect
+	github.com/microcosm-cc/bluemonday v1.0.27 // indirect
+	github.com/mikelolasagasti/xz v1.0.1 // indirect
+	github.com/minio/minlz v1.1.1 // indirect
+	github.com/mitchellh/copystructure v1.2.0 // indirect
+	github.com/mitchellh/hashstructure/v2 v2.0.2 // indirect
+	github.com/mitchellh/reflectwalk v1.0.2 // indirect
+	github.com/muesli/cancelreader v0.2.2 // indirect
+	github.com/muesli/termenv v0.16.0 // indirect
+	github.com/nwaples/rardecode/v2 v2.2.2 // indirect
+	github.com/oklog/ulid/v2 v2.1.2 // indirect
+	github.com/pelletier/go-toml/v2 v2.3.1 // indirect
+	github.com/pierrec/lz4/v4 v4.1.26 // indirect
+	github.com/pjbgf/sha1cd v0.6.0 // indirect
+	github.com/pkoukk/tiktoken-go v0.1.8 // indirect
+	github.com/posthog/posthog-go v1.25.1 // indirect
+	github.com/rivo/uniseg v0.4.7 // indirect
+	github.com/rrethy/ahocorasick v1.0.0 // indirect
+	github.com/rs/zerolog v1.33.0 // indirect
+	github.com/sergi/go-diff v1.4.0 // indirect
+	github.com/shurcooL/githubv4 v0.0.0-20260209031235-2402fdf4a9ed // indirect
+	github.com/shurcooL/graphql v0.0.0-20240915155400-7ee5256398cf // indirect
+	github.com/sorairolake/lzip-go v0.3.8 // indirect
+	github.com/spf13/afero v1.15.0 // indirect
+	github.com/spf13/cast v1.10.0 // indirect
+	github.com/spf13/pflag v1.0.10 // indirect
+	github.com/tailscale/hujson v0.0.0-20260727124030-b80ff77dac4f // indirect
+	github.com/ulikunitz/xz v0.5.15 // indirect
+	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
+	github.com/yuin/goldmark v1.8.2 // indirect
+	github.com/yuin/goldmark-emoji v1.0.5 // indirect
+	go.yaml.in/yaml/v3 v3.0.5 // indirect
+	go4.org v0.0.0-20260112195520-a5071408f32f // indirect
+	golang.org/x/crypto v0.56.0 // indirect
+	golang.org/x/exp v0.0.0-20250218142911-aa4b98e5adaa // indirect
+	golang.org/x/mod v0.41.0 // indirect
+	golang.org/x/net v0.58.0 // indirect
+	golang.org/x/sync v0.23.0 // indirect
+	golang.org/x/sys v0.48.0 // indirect
+	golang.org/x/term v0.45.0 // indirect
+	golang.org/x/text v0.41.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
+)

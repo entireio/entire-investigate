@@ -1,0 +1,38 @@
+[tools]
+# Keep aligned with the go directive in go.mod.
+go = "1.27.1"
+golangci-lint = "2.13.2"
+shellcheck = "0.11.0"
+
+[tasks.build]
+description = "Build the plugin binary"
+run = "go build -o entire-investigate ./cmd/entire-investigate"
+
+[tasks.install]
+description = "Build and install the plugin into the managed plugin dir"
+run = "mise run build && entire plugin install ./entire-investigate --force"
+
+[tasks.fmt]
+description = "Run gofmt"
+run = "gofmt -s -w ."
+
+[tasks.test]
+description = "Run tests"
+run = "go test ./..."
+
+[tasks."test:ci"]
+description = "Run tests with race detection"
+run = "go test -race ./..."
+
+[tasks.build-all]
+description = "Cross-build every Entire CLI plugin target"
+run = '''
+set -e
+for target in darwin/amd64 darwin/arm64 linux/amd64 linux/arm64 windows/amd64; do
+  GOOS="${target%/*}" GOARCH="${target#*/}" go build ./...
+done
+'''
+
+[tasks.check]
+description = "Run formatting, linting, tests, and cross-builds"
+depends = ["lint", "test:ci", "build-all"]

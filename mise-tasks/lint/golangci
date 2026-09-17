@@ -1,0 +1,4 @@
+#!/bin/sh
+#MISE description="Lint with golangci-lint"
+
+golangci-lint run ./...

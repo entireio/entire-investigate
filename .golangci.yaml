@@ -1,0 +1,121 @@
+version: "2"
+# Mirrors github.com/entireio/cli's configuration, trimmed to the linters and
+# exclusions this repository actually exercises. The investigate sources moved
+# here from that repo and were written against these rules, so diverging would
+# turn a lift-and-shift into a rewrite.
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+linters:
+  default: standard
+  enable:
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - canonicalheader
+    - copyloopvar
+    - decorder
+    - durationcheck
+    - embeddedstructfieldcheck
+    - errchkjson
+    - errname
+    - errorlint
+    - exhaustive
+    - exptostd
+    - forbidigo
+    - forcetypeassert
+    - gocheckcompilerdirectives
+    - gochecknoinits
+    - gochecksumtype
+    - goconst
+    - gocritic
+    - gosec
+    - govet
+    - grouper
+    - iface
+    - importas
+    - inamedparam
+    - ineffassign
+    - intrange
+    - loggercheck
+    - maintidx
+    - makezero
+    - mirror
+    - misspell
+    - musttag
+    - nakedret
+    - nilerr
+    - nilnesserr
+    - nilnil
+    - noctx
+    - nolintlint
+    - nosprintfhostport
+    - perfsprint
+    - promlinter
+    - protogetter
+    - reassign
+    - recvcheck
+    - revive
+    - sloglint
+    - spancheck
+    - staticcheck
+    - tagalign
+    - testableexamples
+    - testifylint
+    - tparallel
+    - unconvert
+    - unparam
+    - unused
+    - usestdlibvars
+    - wastedassign
+    - whitespace
+    - wrapcheck
+  settings:
+    goconst:
+      ignore-tests: true
+      ignore-map-keys: true
+    gosec:
+      excludes:
+        - G204 # subprocess with variables is expected for agent/git CLI wrappers
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
+    forbidigo:
+      analyze-types: true
+      forbid:
+        - pattern: '^os\.Getwd$'
+          msg: "os.Getwd() breaks when running from subdirectories - use paths.WorktreeRoot(ctx) for git-relative paths"
+          pkg: '^os$'
+        - pattern: '^.*\.(Print|Println|Printf)$'
+          msg: "cobra's Print* writes to OutOrStderr (stderr in production); use fmt.Fprint*(cmd.OutOrStdout(), ...)"
+          pkg: 'github\.com/spf13/cobra'
+    govet:
+      enable-all: true
+      disable:
+        - fieldalignment
+        - shadow
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+    sloglint:
+      attr-only: true
+    testifylint:
+      enable-all: true
+    unparam:
+      check-exported: true
+    wrapcheck:
+      # internal/config is this module's own package and already returns
+      # messages naming the file and operation; wrapping at the call site
+      # would only prefix them a second time.
+      ignore-package-globs:
+        - github.com/entireio/entire-investigate/internal/config
+  exclusions:
+    presets:
+      - comments
+      - std-error-handling
+    rules:
+      - path: _test\.go
+        linters:
+          - gosec
+          - wrapcheck
+          - forbidigo
