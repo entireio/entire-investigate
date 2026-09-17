@@ -8,15 +8,15 @@ This ships as an Entire [external command](https://github.com/entireio/cli/blob/
 
 ## Install
 
-```sh
-entire plugin install investigate
-```
-
-Or from source:
+Build it and install the binary into Entire's managed plugin directory:
 
 ```sh
 mise run install
 ```
+
+That runs `go build` and `entire plugin install ./entire-investigate --force`. After it, `entire investigate` dispatches here.
+
+> **Not yet installable by name.** `entire plugin install investigate` does not work today, and neither does the repository-URL form. The bare name resolves through the [plugin index](https://github.com/entireio/plugin-index), which does not list `investigate` yet; the URL form resolves a version with `git ls-remote --tags`, and this repository has no release tags. Both start working once a `v*` tag is pushed — the release workflow publishes the archives and `checksums.txt` that `entire plugin install` verifies — and, for the bare name, once an index entry is added.
 
 ## Use
 
